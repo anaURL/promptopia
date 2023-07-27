@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import { useSession, getSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 
 const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
@@ -34,7 +34,7 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
           onClick={handleProfileClick}
         >
           <Image
-            src={post.creator.image}
+            src={session?.creator?.image || 'https://img.freepik.com/premium-vector/user-follower-icons-social-media_598722-40.jpg?w=826'} 
             alt='user_image'
             width={40}
             height={40}
@@ -43,10 +43,10 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
 
           <div className='flex flex-col'>
             <h3 className='font-satoshi font-semibold text-gray-900'>
-              {post.creator.username}
+              {post?.creator?.username}
             </h3>
             <p className='font-inter text-sm text-gray-500'>
-              {post.creator.email}
+              {post?.creator?.email}
             </p>
           </div>
         </div>
@@ -70,10 +70,10 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
         className='font-inter text-sm blue_gradient cursor-pointer'
         onClick={() => handleTagClick && handleTagClick(post.tag)}
       >
-        #{post.tag}
+        {post.tag}
       </p>
 
-      {session?.user.id === post.creator._id && pathName === "/profile" && (
+      {session?.user.id === post.creator?._id && pathName === "/profile" && (
         <div className='mt-5 flex-center gap-4 border-t border-gray-100 pt-3'>
           <p
             className='font-inter text-sm green_gradient cursor-pointer'
@@ -92,5 +92,14 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
     </div>
   );
 };
+
+export async function getServerSideProps(context) {
+  return {
+      props: {
+          session: await getSession(context)
+      },
+  }
+}
+
 
 export default PromptCard;
